@@ -167,6 +167,11 @@ export default function TheLuxeEdit() {
         @media (prefers-reduced-motion: reduce){ .le-rise,.le-fade{animation:none!important;} }
         .le-opt:hover { border-color: ${C.ink} !important; }
         .le-opt:focus-visible { outline: 2px solid ${C.gold}; outline-offset: 2px; }
+        .le-quiz-options { display: grid; gap: 14px; grid-template-columns: repeat(var(--le-option-count, 4), 1fr); }
+        @media (max-width: 768px) {
+          .le-quiz-options { grid-template-columns: 1fr; }
+        }
+        .le-opt { min-height: 120px; }
       `}</style>
 
       <Nav screen={screen} go={go} />
@@ -314,7 +319,7 @@ function Quiz({ step, setStep, answers, setAnswers, onDone }) {
           {q.prompt}
         </h2>
 
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${q.options.length}, 1fr)`, gap: 14 }}>
+        <div className="le-quiz-options" style={{ "--le-option-count": q.options.length }}>
           {q.options.map((o) => {
             const active = chosen === o.v;
             return (
