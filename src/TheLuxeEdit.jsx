@@ -314,7 +314,7 @@ function Quiz({ step, setStep, answers, setAnswers, onDone }) {
           {q.prompt}
         </h2>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: `repeat(${q.options.length}, 1fr)`, gap: 14 }}>
           {q.options.map((o) => {
             const active = chosen === o.v;
             return (
