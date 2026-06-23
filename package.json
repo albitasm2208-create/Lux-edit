@@ -1,24 +1,34 @@
 {
-  "name": "miami-dade-ai-program",
+  "name": "the-luxe-edit",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "vite",
     "dev:server": "node server/index.js",
+    "start": "node server/index.js",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seed": "node scripts/seed-products.js",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.8",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "i18next": "^25.2.1",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "react-i18next": "^15.5.2",
+    "react-router-dom": "^7.6.3",
+    "resend": "^4.5.1",
+    "stripe": "^18.1.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.52.0",
     "concurrently": "^9.2.0",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",

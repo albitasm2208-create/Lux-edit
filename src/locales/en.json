@@ -1,0 +1,23 @@
+{
+  "nav": {
+    "stylist": "Stylist",
+    "membership": "Membership",
+    "begin": "Begin",
+    "account": "Account",
+    "lang": "ES"
+  },
+  "auth": {
+    "eyebrow": "Members",
+    "title": "Sign in",
+    "email": "Email address",
+    "signIn": "Send magic link",
+    "checkEmail": "Check your email for the sign-in link.",
+    "back": "Back to home"
+  },
+  "landing": {
+    "tagline": "A private fashion concierge",
+    "headline": "Style is personal. Technology should be too.",
+    "ctaQuiz": "Build your style profile",
+    "ctaStylist": "Speak with your stylist"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "nav": {
+    "stylist": "Estilista",
+    "membership": "Membresía",
+    "begin": "Comenzar",
+    "account": "Cuenta",
+    "lang": "EN"
+  },
+  "auth": {
+    "eyebrow": "Miembros",
+    "title": "Iniciar sesión",
+    "email": "Correo electrónico",
+    "signIn": "Enviar enlace",
+    "checkEmail": "Revisa tu correo para el enlace de acceso.",
+    "back": "Volver al inicio"
+  },
+  "landing": {
+    "tagline": "Un conserje de moda privado",
+    "headline": "El estilo es personal. La tecnología también debería serlo.",
+    "ctaQuiz": "Crea tu perfil de estilo",
+    "ctaStylist": "Habla con tu estilista"
+  }
+}

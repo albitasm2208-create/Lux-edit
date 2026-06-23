@@ -1,0 +1,10 @@
+# Railway / Render start command
+# npm start
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "npm start"
+healthcheckPath = "/api/health"
+restartPolicyType = "on_failure"

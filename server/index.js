@@ -1,62 +1,58 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import aiRoutes from "./routes/ai.js";
+import emailRoutes from "./routes/email.js";
+import capsuleRoutes from "./routes/capsules.js";
+import orderRoutes from "./routes/orders.js";
+import fulfillmentRoutes from "./routes/fulfillment.js";
+import stripeRoutes from "./routes/stripe.js";
+import { stripe, isStripeConfigured } from "./lib/stripe.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "http://localhost:5173";
 
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: process.env.NODE_ENV === "production" ? ALLOWED_ORIGIN : true,
+}));
 
-app.post("/api/stylist-note", async (req, res) => {
-  const { summary } = req.body;
-
-  if (!summary) {
-    return res.status(400).json({ error: "Profile summary is required." });
-  }
-
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(503).json({ error: "Anthropic API key not configured." });
-  }
-
+app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
+  if (!isStripeConfigured()) return res.status(503).send("Stripe not configured");
+  const sig = req.headers["stripe-signature"];
+  let event;
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
-        messages: [{
-          role: "user",
-          content: `You are a discreet, world-class personal stylist for The Luxe Edit, a luxury capsule-wardrobe concierge. Write a short, warm note (3-4 sentences, no greeting, no sign-off, no lists) to a client introducing the seasonal capsule you've curated for them. Quiet-luxury tone — confident, understated, never salesy. Base it on their profile: ${summary}. Reference their instincts naturally. Do not use the words "elevate" or "curated".`,
-        }],
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error("Anthropic API error:", data);
-      return res.status(response.status).json({ error: "Failed to generate stylist note." });
-    }
-
-    const note = (data.content || [])
-      .filter((block) => block.type === "text")
-      .map((block) => block.text)
-      .join(" ")
-      .trim();
-
-    return res.json({ note });
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
-    console.error("Stylist note error:", err);
-    return res.status(500).json({ error: "Internal server error." });
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
+    const { userId, tier } = session.metadata || {};
+    const { supabaseAdmin, isSupabaseConfigured } = await import("./lib/supabase.js");
+    if (isSupabaseConfigured() && userId) {
+      await supabaseAdmin.from("profiles").update({
+        membership_tier: tier?.toLowerCase(),
+        stripe_customer_id: session.customer,
+      }).eq("id", userId);
+    }
+  }
+  res.json({ received: true });
+});
+
+app.use(express.json({ limit: "32kb" }));
+
+app.use("/api", aiRoutes);
+app.use("/api/email", emailRoutes);
+app.use("/api/catalog", capsuleRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/fulfillment", fulfillmentRoutes);
+app.use("/api/stripe", stripeRoutes);
+
+app.get("/api/health", (_req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 app.listen(PORT, () => {
